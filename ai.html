@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS - Virtual Assistant</title>
+    <link rel="shortcut icon" href="avatar.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: #000;
+            color: #aed0d0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .image-container img {
+            width: 200px;
+            height: auto;
+        }
+
+        .title {
+            color: #00bcd4;
+            margin: 20px 0;
+            font-size: 28px;
+        }
+
+        .message {
+            margin-bottom: 40px;
+        }
+
+        .input-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .talk-button {
+            background: transparent;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: #aed0d0;
+            margin-right: 10px;
+            transition: color 0.3s ease;
+        }
+
+        .talk-button:hover {
+            color: #00bcd4;
+        }
+
+        .content {
+            font-size: 18px;
+            color: #aed0d0;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="image-container">
+            <img src="jarvis.gif" alt="image">
+        </div>
+        <h1 class="title">J A R V I S</h1>
+        <p class="message">I'm a Virtual Assistant JARVIS. How may I help you?</p>
+        <div class="input-container">
+            <button class="talk-button" id="talkButton"><i class="fas fa-microphone-alt"></i></button>
+            <p class="content" id="content">Click the microphone to speak</p>
+        </div>
+    </div>
+
+    <script>
+        const talkButton = document.getElementById('talkButton');
+        const content = document.getElementById('content');
+
+        function speak(text) {
+            const message = new SpeechSynthesisUtterance(text);
+            message.rate = 1;
+            message.volume = 1;
+            message.pitch = 1;
+            window.speechSynthesis.speak(message);
+        }
+
+        function wishMe() {
+            const hour = new Date().getHours();
+            if (hour < 12) {
+                speak("Good Morning Boss...");
+            } else if (hour < 17) {
+                speak("Good Afternoon Master...");
+            } else {
+                speak("Good Evening Sir...");
+            }
+        }
+
+        window.addEventListener('load', () => {
+            speak("Initializing JARVIS...");
+            wishMe();
+        });
+
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition || window.mozSpeechRecognition || window.msSpeechRecognition)();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onresult = (event) => {
+            const currentIndex = event.resultIndex;
+            const transcript = event.results[currentIndex][0].transcript;
+            content.textContent = transcript;
+            takeCommand(transcript.toLowerCase());
+        };
+
+        talkButton.addEventListener('click', () => {
+            content.textContent = "Listening...";
+            recognition.start();
+        });
+
+        function takeCommand(message) {
+            if (message.includes('hey') || message.includes('hello')) {
+                speak("Hello Sir, How May I Help You?");
+            } else if (message.includes("open google")) {
+                window.open("https://google.com", "_blank");
+                speak("Opening Google...");
+            } else if (message.includes("open youtube")) {
+                window.open("https://youtube.com", "_blank");
+                speak("Opening Youtube...");
+            } else if (message.includes("open facebook")) {
+                window.open("https://facebook.com", "_blank");
+                speak("Opening Facebook...");
+            } else if (message.includes('what is') || message.includes('who is') || message.includes('what are')) {
+                window.open(`https://www.google.com/search?q=${message.replace(" ", "+")}`, "_blank");
+                const finalText = "This is what I found on the internet regarding " + message;
+                speak(finalText);
+            } else if (message.includes('wikipedia')) {
+                window.open(`https://en.wikipedia.org/wiki/${message.replace("wikipedia", "").trim()}`, "_blank");
+                const finalText = "This is what I found on Wikipedia regarding " + message;
+                speak(finalText);
+            } else if (message.includes('time')) {
+                const time = new Date().toLocaleString(undefined, { hour: "numeric", minute: "numeric" });
+                const finalText = "The current time is " + time;
+                speak(finalText);
+            } else if (message.includes('date')) {
+                const date = new Date().toLocaleString(undefined, { month: "short", day: "numeric" });
+                const finalText = "Today's date is " + date;
+                speak(finalText);
+            } else if (message.includes('calculator')) {
+                window.open('Calculator:///');
+                const finalText = "Opening Calculator";
+                speak(finalText);
+            } else {
+                window.open(`https://www.google.com/search?q=${message.replace(" ", "+")}`, "_blank");
+                const finalText = "I found some information for " + message + " on Google";
+                speak(finalText);
+            }
+        }
+    </script>
+</body>
+</html>
